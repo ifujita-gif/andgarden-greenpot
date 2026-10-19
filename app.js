@@ -53,12 +53,13 @@ function analyze(img) {
   }
   if (top < 0) return null;
   const span = (y) => (rows[y] ? rows[y][1] - rows[y][0] : 0);
-  const sample = [];
-  for (let y = bottom; y > bottom - Math.max(3, H * 0.01) && y >= 0; y--) if (rows[y]) sample.push(rows[y]);
-  const baseW = sample.reduce((a, r) => a + (r[1] - r[0]), 0) / sample.length;
-  const baseCenter = sample.reduce((a, r) => a + (r[0] + r[1]) / 2, 0) / sample.length / W;
+  // 内鉢の幅: 下端は底の丸みで細くなるので、下から4%の範囲でいちばん広い行を使う
+  let baseW = 0, baseRow = null;
+  for (let y = bottom; y > bottom - Math.max(4, H * 0.04) && y >= 0; y--) if (span(y) > baseW) { baseW = span(y); baseRow = rows[y]; }
+  const baseCenter = (baseRow[0] + baseRow[1]) / 2 / W;
+  // 下から上へ見て、幅が内鉢の6割を下回り続けた行 = 内鉢の上端(株元)。下から3割より上で見つかったものは信用しない
   let nurseryTop = null;
-  for (let y = bottom; y > top + 3; y--) {
+  for (let y = bottom; y > Math.max(top + 3, bottom - (bottom - top) * 0.3); y--) {
     if (span(y) < baseW * 0.6 && span(y - 1) < baseW * 0.6 && span(y - 2) < baseW * 0.6) { nurseryTop = y + 1; break; }
   }
   return { top: top / H, bottom: (bottom + 1) / H, baseCenterX: baseCenter, baseWidthRatio: baseW / H, nurseryTop: nurseryTop == null ? null : nurseryTop / H, centerX: maxRowCenter };

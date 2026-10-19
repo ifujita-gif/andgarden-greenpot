@@ -5,6 +5,15 @@
 window.GREENPOT_DATA = {
   "greens": [
     {
+      "id": "tree-210",
+      "title": "樹木 210cm",
+      "price": 0,
+      "image": "assets/real/tree-210.webp",
+      "heightCm": 210,
+      "nurseryWcm": 15.5,
+      "nurseryHcm": 14
+    },
+    {
       "id": "large-fakegreen-dracaena-warneckii-150cm",
       "title": "ドラセナ ワーネッキー 150cm",
       "price": 25300,
@@ -54,6 +63,18 @@ window.GREENPOT_DATA = {
     }
   ],
   "pots": [
+    {
+      "id": "pot-30",
+      "title": "鉢カバー Φ30×H30cm",
+      "price": 0,
+      "imageFront": "assets/real/pot-30.webp",
+      "heightCm": 32.4,
+      "mouthCm": 26,
+      "innerBottomCm": 17,
+      "rimY": 0.048,
+      "soilDepthCm": 3,
+      "_note": "真横からの1枚。外径Φ30が画像の幅いっぱい→画像の高さは32.4cm相当(上下の楕円を含む)"
+    },
     {
       "id": "basic-fiber-clay-pot-no22-m-wh",
       "title": "BASICファイバークレイポット No.22 / M / WH",
