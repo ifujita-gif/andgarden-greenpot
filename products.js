@@ -1,7 +1,6 @@
-// 商品と背景のデータ。本番ではShopifyの商品メタフィールドから同じ形のデータを作る。
+// 単独のページ用の商品データ(Shopifyでは、商品の入力欄からセクションが同じ形のデータを作る)
 // heightCm = 画像の上端〜下端の実寸。provisional = 仮の値。
-// 背景写真を常設するとき: backgrounds に {id, title, type:"photo", image:"assets/backgrounds/xxx.jpg", viewCm:250, x:0.5, floorY:0.9} を足す
-//   viewCm = 写真の高さが置き場所の奥行きで何cm相当か(大きさの初期値) / x, floorY = 鉢を置く位置(0〜1)
+// 背景写真を常設するとき: backgrounds: [{ id, title, type: "photo", image: "assets/backgrounds/xxx.jpg", viewCm: 250, x: 0.5, floorY: 0.9 }]
 window.GREENPOT_DATA = {
   "greens": [
     {
@@ -130,38 +129,11 @@ window.GREENPOT_DATA = {
       ]
     }
   ],
-  "backgrounds": [
-    {
-      "id": "room-white",
-      "title": "ホワイト",
-      "type": "room",
-      "wall": "#f3f2ee",
-      "floor": "#d6c9b2",
-      "baseboard": "#ffffff"
-    },
-    {
-      "id": "room-greige",
-      "title": "グレージュ",
-      "type": "room",
-      "wall": "#e4e0d8",
-      "floor": "#a8998a",
-      "baseboard": "#f0ede7"
-    },
-    {
-      "id": "room-mortar",
-      "title": "モルタル",
-      "type": "room",
-      "wall": "#d9d9d6",
-      "floor": "#9c9c98",
-      "baseboard": "#cfcfcb"
-    },
-    {
-      "id": "room-dark",
-      "title": "ダーク",
-      "type": "room",
-      "wall": "#4a4b47",
-      "floor": "#6b5847",
-      "baseboard": "#3d3e3a"
-    }
-  ]
+  "options": {
+    "title": "草合体できて草",
+    "lead": "グリーンと鉢カバーを選ぶと、植えたときの見た目と高さを確認できます。お部屋の写真を背景にすることもできます。",
+    "rooms": true,
+    "showTools": true,
+    "cart": null
+  }
 };
