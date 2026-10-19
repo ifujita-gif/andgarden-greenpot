@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>草合体できて草</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap">
+<style>
+  /* & GARDEN(Shopify Dawnベース)の見た目に合わせる: セージの帯、白地、角丸なし、Josefin Sansの英字見出し+日本語 */
+  :root {
+    --sage: #b7bcb2;
+    --sage-deep: #9aa094;
+    --ink: #121212;
+    --text: rgba(18, 18, 18, .75);
+    --muted: rgba(18, 18, 18, .55);
+    --line: rgba(18, 18, 18, .12);
+    --soft: #f5f5f3;
+    --bg: #ffffff;
+    --ng: #a8322a; --warn: #9a5a1c; --ok: #4f6b45;
+    --font-body: "Noto Sans JP", "Noto Sans Japanese", "Hiragino Sans", "Yu Gothic", sans-serif;
+    --font-head: "Josefin Sans", "Yu Gothic", YuGothic, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 13px; line-height: 1.8; letter-spacing: .6px; }
+  button, input, select { font: inherit; letter-spacing: inherit; color: inherit; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  .topbar { background: var(--sage); color: #fff; text-align: center; padding: 14px 16px; }
+  .topbar .en { font-family: var(--font-head); font-size: 20px; letter-spacing: .18em; line-height: 1.2; display: block; }
+  .topbar .ja { font-size: 11px; letter-spacing: .12em; opacity: .9; }
+
+  .page { max-width: 1200px; margin: 0 auto; padding: 36px 50px 64px; display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); gap: 48px; align-items: start; }
+  @media (max-width: 990px) { .page { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 16px 16px 48px; } }
+
+  /* プレビュー */
+  .media { position: sticky; top: 20px; }
+  @media (max-width: 990px) { .media { position: relative; top: 0; } }
+  .stage { position: relative; width: 100%; aspect-ratio: 4 / 5; max-height: calc(100vh - 60px); overflow: hidden; background: var(--soft); touch-action: none; cursor: grab; user-select: none; }
+  @media (max-width: 990px) { .stage { max-height: 70vh; } }
+  .stage.dragging { cursor: grabbing; }
+  .stage .bg { position: absolute; inset: 0; }
+  .stage .bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .stage img.layer { position: absolute; pointer-events: none; }
+  .stage svg.overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .stage .chip { position: absolute; left: 12px; top: 12px; background: rgba(255,255,255,.88); color: var(--ink); padding: 4px 10px; font-size: 12px; z-index: 10; }
+  .stage .chip[hidden] { display: none; }
+  .stage .empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); z-index: 9; }
+  .stage .empty[hidden] { display: none; }
+  .media-note { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; color: var(--muted); font-size: 12px; }
+
+  /* 右側 */
+  .info { display: flex; flex-direction: column; gap: 30px; min-width: 0; }
+  .title h1 { font-family: var(--font-head); font-weight: 400; font-size: 25px; line-height: 1.3; color: var(--ink); margin: 0 0 8px; letter-spacing: .6px; }
+  .title p { margin: 0; }
+  .sec-head { display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px; color: var(--ink); }
+  .sec-head .en { font-family: var(--font-head); font-weight: 700; font-size: 18px; letter-spacing: .08em; line-height: 1; }
+  .sec-head .ja { font-size: 12px; color: var(--text); }
+  .sec-head .picked { margin-left: auto; font-size: 12px; color: var(--muted); text-align: right; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 990px) { .cards { display: flex; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 6px; } .cards > * { flex: 0 0 96px; scroll-snap-align: start; } }
+  .card { background: var(--bg); border: 1px solid var(--line); padding: 0 0 6px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 4px; position: relative; transition: border-color .15s; }
+  .card:hover { border-color: var(--sage-deep); }
+  .card[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .card .ph { aspect-ratio: 1; display: grid; place-items: center; background: var(--soft); position: relative; overflow: hidden; }
+  .card .ph img { max-width: 82%; max-height: 88%; }
+  .card .ph img.stack { position: absolute; }
+  .card .ph.full img { max-width: none; max-height: none; width: 100%; height: 100%; object-fit: cover; }
+  .card .nm { padding: 0 6px; font-size: 11px; line-height: 1.45; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.9em; }
+  .card .pr { padding: 0 6px; font-size: 11.5px; letter-spacing: 1px; color: var(--ink); }
+  .card .badge { position: absolute; top: 4px; left: 4px; font-size: 10px; line-height: 1.5; padding: 0 5px; background: var(--ink); color: #fff; letter-spacing: .1em; z-index: 1; }
+  .card .badge.temp { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .card .del { position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; line-height: 18px; text-align: center; background: #fff; border: 1px solid var(--line); font-size: 12px; cursor: pointer; z-index: 1; }
+  .card.none .ph { color: var(--muted); font-size: 11px; }
+  .card.add .ph { color: var(--ink); font-size: 22px; font-weight: 300; }
+  .room-swatch { width: 100%; height: 100%; }
+
+  .place { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .place label { white-space: nowrap; color: var(--ink); }
+  .place input[type=range] { flex: 1; accent-color: var(--sage-deep); }
+  .link-btn { background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; color: var(--text); font-size: 12px; white-space: nowrap; }
+
+  .fit { background: var(--soft); padding: 12px 14px; line-height: 1.7; }
+  .fit[hidden] { display: none; }
+  .fit .ng { color: var(--ng); font-weight: 700; } .fit .warn { color: var(--warn); font-weight: 700; } .fit .ok { color: var(--ok); font-weight: 700; }
+
+  .summary { border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .summary .row { display: flex; justify-content: space-between; gap: 12px; }
+  .summary .row .lbl { color: var(--muted); font-size: 11px; display: block; }
+  .summary .row a { color: var(--ink); text-decoration: none; }
+  .summary .row a:hover { text-decoration: underline; }
+  .summary .row .yen { color: var(--ink); letter-spacing: 1.3px; white-space: nowrap; }
+  .summary .total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); margin-top: 8px; padding-top: 12px; color: var(--ink); }
+  .summary .total b { font-size: 20px; font-weight: 400; letter-spacing: 1.3px; }
+
+  .actions { display: flex; flex-direction: column; gap: 10px; }
+  .btn { display: block; width: 100%; min-height: 48px; border: 0; cursor: pointer; font-size: 15px; letter-spacing: 1px; padding: 0 30px; }
+  .btn-primary { background: var(--sage); color: #fff; }
+  .btn-primary:hover { background: var(--sage-deep); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-outline { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .btn-outline:hover { box-shadow: inset 0 0 0 2px var(--ink); }
+
+  details.tools { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  details.tools > summary { list-style: none; cursor: pointer; padding: 14px 0; display: flex; justify-content: space-between; color: var(--ink); }
+  details.tools > summary::-webkit-details-marker { display: none; }
+  details.tools > summary::after { content: "+"; font-size: 16px; line-height: 1; }
+  details.tools[open] > summary::after { content: "−"; }
+  .tools-body { padding: 0 0 18px; display: flex; flex-direction: column; gap: 18px; }
+  .tools h3 { font-size: 12px; margin: 0 0 6px; color: var(--ink); font-weight: 700; }
+  .adjust { display: grid; grid-template-columns: 48px 1fr 52px; gap: 4px 10px; align-items: center; }
+  .adjust input { accent-color: var(--sage-deep); }
+  .adjust output { text-align: right; font-variant-numeric: tabular-nums; }
+  .hint { color: var(--muted); font-size: 11.5px; line-height: 1.6; margin: 6px 0 0; }
+  .drop { border: 1px dashed var(--sage-deep); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .drop.over { background: var(--soft); }
+  .drop .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+  .drop label { display: flex; flex-direction: column; gap: 2px; flex: 1 1 100px; font-size: 11.5px; }
+  .drop input[type=text], .drop input[type=number], .drop select { border: 1px solid var(--line); background: #fff; padding: 6px 8px; width: 100%; }
+  .drop .file-name { font-size: 11.5px; color: var(--muted); word-break: break-all; }
+  .drop[data-kind="green"] .pot-only, .drop[data-kind="pot"] .green-only { display: none; }
+  .btn-sm { min-height: 36px; font-size: 13px; padding: 0 14px; width: auto; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; font-size: 12.5px; max-width: calc(100vw - 32px); white-space: pre-wrap; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 50; }
+  .toast.show { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="en">COORDINATE</span>
+  <span class="ja">グリーンと鉢カバーの組み合わせ(試作)</span>
+</header>
+
+<main class="page">
+  <section class="media" aria-label="組み合わせのプレビュー">
+    <div class="stage" id="stage">
+      <div class="bg" id="bgLayer"></div>
+      <svg class="overlay" id="under"></svg>
+      <span class="chip" id="heightChip" hidden></span>
+      <div class="empty" id="empty" hidden>グリーンか鉢カバーを選んでください</div>
+    </div>
+    <div class="media-note">
+      <span>プレビューをドラッグすると置く位置を動かせます</span>
+      <span id="rulerNote"></span>
+    </div>
+  </section>
+
+  <section class="info">
+    <div class="title">
+      <h1>草合体できて草</h1>
+      <p>グリーンと鉢カバーを選ぶと、植えたときの見た目と高さを確認できます。お部屋の写真を背景にすることもできます。</p>
+    </div>
+
+    <div>
+      <h2 class="sec-head"><span class="en">GREEN</span><span class="ja">グリーン</span><span class="picked" id="pickedGreen"></span></h2>
+      <div class="cards" id="greenList"></div>
+    </div>
+
+    <div>
+      <h2 class="sec-head"><span class="en">POT</span><span class="ja">鉢カバー</span><span class="picked" id="pickedPot"></span></h2>
+      <div class="cards" id="potList"></div>
+    </div>
+
+    <div class="fit" id="fit" hidden></div>
+
+    <div>
+      <h2 class="sec-head"><span class="en">ROOM</span><span class="ja">背景</span></h2>
+      <div class="cards" id="bgList"></div>
+      <input type="file" id="bgFile" accept="image/*" hidden>
+      <div class="place">
+        <label for="scale">大きさ</label>
+        <input type="range" id="scale" min="0.5" max="1.8" step="0.01" value="1">
+        <button type="button" class="link-btn" id="resetPlace">位置を戻す</button>
+      </div>
+      <p class="hint">お部屋の写真を使うときは、置きたい場所までドラッグし、周りの家具と見比べて「大きさ」を合わせてください。写真はこの端末の中だけで使い、どこにも送りません。</p>
+    </div>
+
+    <div class="summary" id="summary">
+      <div id="rows"></div>
+      <div class="total"><span>合計</span><b id="sum">¥0</b></div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="addCart" disabled>まとめてカートに追加する</button>
+      <button type="button" class="btn btn-outline" id="copyUrl">この組み合わせのURLをコピー</button>
+    </div>
+
+    <details class="tools" id="toolsBox">
+      <summary>素材の確認用(スタッフ向け)</summary>
+      <div class="tools-body">
+        <div>
+          <h3>位置の微調整</h3>
+          <div class="adjust">
+            <span>上下</span><input type="range" id="adjY" min="-15" max="15" step="0.5" value="0"><output id="adjYv">0cm</output>
+            <span>左右</span><input type="range" id="adjX" min="-15" max="15" step="0.5" value="0"><output id="adjXv">0cm</output>
+          </div>
+          <p class="hint">選んでいるグリーンごとに、このブラウザに保存されます。上下はプラスで深く沈みます。<br>決まった値: <code id="adjOut">—</code></p>
+        </div>
+        <div>
+          <h3>手元の透過素材で試す</h3>
+          <div class="drop" id="drop" data-kind="green">
+            <div class="row">
+              <button class="btn btn-outline btn-sm" id="pickFile" type="button">画像を選ぶ</button>
+              <span class="file-name" id="fileName">PNG / WebP / SVG をここかプレビューにドラッグしても追加できます</span>
+              <input type="file" id="fileInput" accept="image/png,image/webp,image/svg+xml" hidden>
+            </div>
+            <div class="row">
+              <label>種類<select id="kind"><option value="green">グリーン</option><option value="pot">鉢カバー</option></select></label>
+              <label>名前<input type="text" id="tName" placeholder="例: 210cmの樹木"></label>
+            </div>
+            <div class="row">
+              <label>画像の高さ(cm)<input type="number" id="tHeight" step="0.1" min="1" placeholder="210"></label>
+              <label class="green-only">内鉢の径(cm)<input type="number" id="tNurseryW" step="0.1" placeholder="15.5"></label>
+              <label class="green-only">内鉢の高さ(cm)<input type="number" id="tNurseryH" step="0.1" placeholder="14"></label>
+              <label class="pot-only">口径(cm)<input type="number" id="tMouth" step="0.1" placeholder="26"></label>
+              <label class="pot-only">内底の径(cm)<input type="number" id="tBottom" step="0.1" placeholder="17"></label>
+            </div>
+            <div class="row"><label>価格(任意)<input type="number" id="tPrice" step="1" placeholder="0"></label></div>
+            <button class="btn btn-primary btn-sm" id="addBtn" type="button" disabled>一覧に追加</button>
+            <p class="hint" style="margin:0">鉢カバーは1枚(真横から撮影)でも、前面・背面の2枚組でも使えます。追加したものは再読み込みすると消えます。</p>
+          </div>
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<script src="products.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

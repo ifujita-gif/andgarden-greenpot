@@ -1,0 +1,146 @@
+// 商品と背景のデータ。本番ではShopifyの商品メタフィールドから同じ形のデータを作る。
+// heightCm = 画像の上端〜下端の実寸。provisional = 仮の値。
+// 背景写真を常設するとき: backgrounds に {id, title, type:"photo", image:"assets/backgrounds/xxx.jpg", viewCm:250, x:0.5, floorY:0.9} を足す
+//   viewCm = 写真の高さが置き場所の奥行きで何cm相当か(大きさの初期値) / x, floorY = 鉢を置く位置(0〜1)
+window.GREENPOT_DATA = {
+  "greens": [
+    {
+      "id": "large-fakegreen-dracaena-warneckii-150cm",
+      "title": "ドラセナ ワーネッキー 150cm",
+      "price": 25300,
+      "variantId": 48299401117748,
+      "url": "https://and-garden-fakegreen.com/products/large-fakegreen-dracaena-warneckii-150cm",
+      "image": "assets/green-dracaena.svg",
+      "heightCm": 150,
+      "nurseryWcm": 21,
+      "nurseryHcm": 15,
+      "provisional": [
+        "image",
+        "nurseryWcm",
+        "nurseryHcm"
+      ]
+    },
+    {
+      "id": "eucalyptus-tree-real-wood",
+      "title": "ユーカリツリー リアルウッド 130cm",
+      "price": 25300,
+      "variantId": 47008630931508,
+      "url": "https://and-garden-fakegreen.com/products/eucalyptus-tree-real-wood",
+      "image": "assets/green-eucalyptus.svg",
+      "heightCm": 130,
+      "nurseryWcm": 18,
+      "nurseryHcm": 15,
+      "provisional": [
+        "image",
+        "nurseryWcm",
+        "nurseryHcm"
+      ]
+    },
+    {
+      "id": "large-fakegreen-ficus-benghalensis-145cm",
+      "title": "フィカス・ベンガレンシス 145cm",
+      "price": 26400,
+      "variantId": 50482113118260,
+      "url": "https://and-garden-fakegreen.com/products/large-fakegreen-ficus-benghalensis-145cm",
+      "image": "assets/green-ficus.svg",
+      "heightCm": 145,
+      "nurseryWcm": 21,
+      "nurseryHcm": 15,
+      "provisional": [
+        "image",
+        "nurseryWcm",
+        "nurseryHcm"
+      ]
+    }
+  ],
+  "pots": [
+    {
+      "id": "basic-fiber-clay-pot-no22-m-wh",
+      "title": "BASICファイバークレイポット No.22 / M / WH",
+      "price": 10560,
+      "variantId": 48097548763188,
+      "url": "https://and-garden-fakegreen.com/products/basic-fiber-clay-pot-no22-m-wh",
+      "imageBack": "assets/pot-basic22-back.svg",
+      "imageFront": "assets/pot-basic22-front.svg",
+      "heightCm": 37.9,
+      "mouthCm": 25,
+      "rimY": 0.057,
+      "ellipseRatio": 0.16,
+      "soilDepthCm": 4,
+      "provisional": [
+        "imageBack",
+        "imageFront"
+      ]
+    },
+    {
+      "id": "cylinder-plain-pot-no1-m-br",
+      "title": "CYLINDERプレーンポット No.1 / M / BR",
+      "price": 14520,
+      "variantId": 48033216233524,
+      "url": "https://and-garden-fakegreen.com/products/cylinder-plain-pot-no1-m-br",
+      "imageBack": "assets/pot-cylinder1-back.svg",
+      "imageFront": "assets/pot-cylinder1-front.svg",
+      "heightCm": 34.6,
+      "mouthCm": 25,
+      "rimY": 0.067,
+      "ellipseRatio": 0.16,
+      "soilDepthCm": 4,
+      "provisional": [
+        "imageBack",
+        "imageFront"
+      ]
+    },
+    {
+      "id": "standard-cement-pot-no7-m-glt",
+      "title": "STANDARDセメントポット No.7 / M / GL",
+      "price": 9240,
+      "variantId": 46945126842420,
+      "url": "https://and-garden-fakegreen.com/products/standard-cement-pot-no7-m-glt",
+      "imageBack": "assets/pot-cement7-back.svg",
+      "imageFront": "assets/pot-cement7-front.svg",
+      "heightCm": 37,
+      "mouthCm": 28,
+      "rimY": 0.0693,
+      "ellipseRatio": 0.16,
+      "soilDepthCm": 4,
+      "provisional": [
+        "imageBack",
+        "imageFront"
+      ]
+    }
+  ],
+  "backgrounds": [
+    {
+      "id": "room-white",
+      "title": "ホワイト",
+      "type": "room",
+      "wall": "#f3f2ee",
+      "floor": "#d6c9b2",
+      "baseboard": "#ffffff"
+    },
+    {
+      "id": "room-greige",
+      "title": "グレージュ",
+      "type": "room",
+      "wall": "#e4e0d8",
+      "floor": "#a8998a",
+      "baseboard": "#f0ede7"
+    },
+    {
+      "id": "room-mortar",
+      "title": "モルタル",
+      "type": "room",
+      "wall": "#d9d9d6",
+      "floor": "#9c9c98",
+      "baseboard": "#cfcfcb"
+    },
+    {
+      "id": "room-dark",
+      "title": "ダーク",
+      "type": "room",
+      "wall": "#4a4b47",
+      "floor": "#6b5847",
+      "baseboard": "#3d3e3a"
+    }
+  ]
+};
