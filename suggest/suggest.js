@@ -113,52 +113,80 @@
     if (room.style === 'neutral' && g.shape === 'airy') { s += 0.5; }
     return { s, why };
   }
+  // ---- 大きさの組み合わせ ----
+  // 大型: 大型鉢とセット(グリーンのS/M/Lと鉢のS/M/Lで合わせる)
+  // 中型・小型: 鉢付きの商品は単体で。鉢なしなら、中型(60cm以上)は大型鉢のS・M、それ以外は小型鉢と組み合わせる
   const SIZE_OK = { S: ['S', 'M'], M: ['M', 'L'], L: ['L', 'M'] };
-  function combos(room) {
-    const ps = C.pots.map((p) => ({ p, ...scorePot(p, room) }));
-    const gs = C.greens.map((g) => ({ g, ...scoreGreen(g, room) }));
-    const all = [];
-    for (const a of gs) for (const b of ps) {
-      if (!SIZE_OK[a.g.size].includes(b.p.size)) continue;
-      let s = a.s + b.s; const why = [...a.why, ...b.why];
-      if (['BL', 'BR', 'NV'].includes(b.p.color) && a.g.tone !== 'deep') { s += 0.5; why.push('濃い鉢と明るい葉で、メリハリが出ます'); }
-      if (b.p.color === 'WH' && a.g.tone === 'deep') { s += 0.5; why.push('白い鉢が濃い緑を引き立てます'); }
-      if (a.g.tone === 'silver' && ['GL', 'WH', 'NA'].includes(b.p.color)) { s += 0.5; why.push('やわらかい葉色と鉢の色が同じトーンでまとまります'); }
-      all.push({ green: a.g, pot: b.p, s, why: [...new Set(why)].slice(0, 3) });
-    }
-    // 点数が同じなら、価格が中くらい(セットで4万円前後)のものを先にする
-    const mid = (c) => Math.abs(c.green.price + c.pot.price - 40000);
-    return all.sort((x, y) => y.s - x.s || mid(x) - mid(y));
+  function potsFor(g) {
+    if (g.cls === 'large') return C.pots.filter((p) => p.cls === 'large' && SIZE_OK[g.size].includes(p.size));
+    if (g.cls === 'medium' && (g.heightCm || 0) >= 60) return C.pots.filter((p) => p.cls === 'large' && ['S', 'M'].includes(p.size));
+    return C.pots.filter((p) => p.cls === 'small');
   }
-  // 上位から、グリーンも鉢の色も重ならないように選ぶ
+  function pairBonus(g, color) {
+    let s = 0; const why = [];
+    if (['BL', 'BR', 'NV'].includes(color) && g.tone !== 'deep') { s += 0.5; why.push('濃い鉢と明るい葉で、メリハリが出ます'); }
+    if (color === 'WH' && g.tone === 'deep') { s += 0.5; why.push('白い鉢が濃い緑を引き立てます'); }
+    if (g.tone === 'silver' && ['GL', 'WH', 'NA'].includes(color)) { s += 0.5; why.push('やわらかい葉色と鉢の色が同じトーンでまとまります'); }
+    return { s, why };
+  }
+  function combos(room, cls) {
+    const potScore = new Map(C.pots.map((p) => [p.id, scorePot(p, room)]));
+    const all = [];
+    for (const g of C.greens.filter((x) => x.cls === cls)) {
+      const gs = scoreGreen(g, room);
+      if (g.ownPot) {
+        // 鉢付きの商品: 付いている鉢の色がわかれば、鉢カバーと同じ基準で点数をつける
+        let s = gs.s; const why = [...gs.why];
+        if (g.ownPotColor) {
+          const ps = scorePot({ color: g.ownPotColor, hex: g.ownPotHex, material: '' }, room);
+          const pb = pairBonus(g, g.ownPotColor);
+          s += ps.s + pb.s; why.push(...ps.why.map((w) => w.replace('鉢の形', '付いている鉢の形')), ...pb.why);
+        }
+        all.push({ green: g, pot: null, color: g.ownPotColor || 'own', s, why: [...new Set(why)].slice(0, 3), total: g.price });
+        continue;
+      }
+      for (const p of potsFor(g)) {
+        const ps = potScore.get(p.id), pb = pairBonus(g, p.color);
+        all.push({ green: g, pot: p, color: p.color, s: gs.s + ps.s + pb.s, why: [...new Set([...gs.why, ...ps.why, ...pb.why])].slice(0, 3), total: g.price + p.price });
+      }
+    }
+    // 点数が同じなら、価格がそのサイズの中くらいのものを先にする
+    const prices = all.map((c) => c.total).sort((x, y) => x - y);
+    const median = prices[prices.length >> 1] || 0;
+    return all.sort((x, y) => y.s - x.s || Math.abs(x.total - median) - Math.abs(y.total - median));
+  }
   // まず葉の色の系統・鉢の色・グリーンがすべて違うものを選び、足りなければ条件をゆるめる
   function pickSets(list, exclude, n) {
     const out = [], usedG = new Set(exclude), usedColor = new Set(), usedTone = new Set();
-    const rest = list;
     for (const strict of [true, false]) {
-      for (const c of rest) {
+      for (const c of list) {
         if (out.length === n) break;
-        if (out.includes(c) || usedG.has(c.green.id) || usedColor.has(c.pot.color)) continue;
-        if (strict && usedTone.has(c.green.tone)) continue;
-        out.push(c); usedG.add(c.green.id); usedColor.add(c.pot.color); usedTone.add(c.green.tone);
+        if (out.includes(c) || usedG.has(c.green.id)) continue;
+        if (strict && (usedTone.has(c.green.tone) || usedColor.has(c.color))) continue;
+        out.push(c); usedG.add(c.green.id); usedColor.add(c.color); usedTone.add(c.green.tone);
       }
     }
     return out;
   }
 
   // ---- 画面 ----
-  let ranked = [], shown = new Set(); // shown = すでに出したグリーン
+  const CLASSES = [
+    { key: 'large', en: 'LARGE', ja: '大型(床に置く)' },
+    { key: 'medium', en: 'MEDIUM', ja: '中型' },
+    { key: 'small', en: 'SMALL', ja: '小型(棚・テーブルに)' },
+  ];
+  const state = {}; // cls -> { ranked, shown }
+  const TONE_NAME = { silver: 'シルバーグリーン', bright: 'ライトグリーン', deep: 'ディープグリーン' };
   function setTitle(c) {
-    const tone = { silver: 'シルバーグリーン', bright: 'ライトグリーン', deep: 'ディープグリーン' }[c.green.tone];
-    return `${tone} × ${c.pot.colorName}`;
+    const potName = c.pot ? c.pot.colorName : c.green.ownPotName ? `${c.green.ownPotName}の鉢付き` : '鉢付き';
+    return `${TONE_NAME[c.green.tone]} × ${potName}`;
   }
   function renderResult(room) {
     const sw = (rgb, label) => `<span class="sg-sw"><i style="background:${rgbToHex(rgb)}"></i>${label}</span>`;
-    const accentRgb = (lab) => labToHex(lab);
     $('reading').innerHTML = [
       sw(room.wallRgb, '壁: ' + colorName(room.wall)),
       sw(room.floorRgb, '床: ' + colorName(room.floor, { floor: true })),
-      ...room.accents.map((a) => `<span class="sg-sw"><i style="background:${accentRgb(a.lab)}"></i>${a.name}</span>`),
+      ...room.accents.map((a) => `<span class="sg-sw"><i style="background:${labToHex(a.lab)}"></i>${a.name}</span>`),
     ].join('');
     $('styleNote').textContent = {
       natural: '木の床のナチュラルな部屋として選んでいます。',
@@ -166,41 +194,42 @@
       dark: '濃い色の落ち着いた部屋として選んでいます。',
       neutral: 'やわらかい色の部屋として選んでいます。',
     }[room.style];
-    ranked = combos(room); shown = new Set();
-    renderSets();
+    for (const c of CLASSES) { state[c.key] = { ranked: combos(room, c.key), shown: new Set() }; renderSets(c.key); }
+    $('result').hidden = false;
   }
-  function renderSets() {
-    let sets = pickSets(ranked, shown, 3);
-    if (!sets.length) { shown = new Set(); sets = pickSets(ranked, shown, 3); } // 出し尽くしたら最初から
-    sets.forEach((c) => shown.add(c.green.id));
-    $('sets').innerHTML = '';
+  function itemHtml(kind) {
+    return `<a class="sg-item" target="_blank" rel="noopener"><img alt="" loading="lazy"><span class="sg-kind">${kind}</span><span class="sg-name"></span><span class="sg-price"></span></a>`;
+  }
+  function fillItem(a, it) {
+    a.href = it.url; a.querySelector('img').src = it.image;
+    a.querySelector('.sg-name').textContent = it.title; a.querySelector('.sg-price').textContent = yen(it.price);
+  }
+  function renderSets(cls) {
+    const st = state[cls];
+    let sets = pickSets(st.ranked, st.shown, 3);
+    if (!sets.length) { st.shown = new Set(); sets = pickSets(st.ranked, st.shown, 3); } // 出し尽くしたら最初から
+    sets.forEach((c) => st.shown.add(c.green.id));
+    const box = $('sets-' + cls);
+    box.innerHTML = '';
     for (const c of sets) {
       const el = document.createElement('article');
       el.className = 'sg-set';
-      el.innerHTML = `
-        <h3 class="sg-set-title"></h3>
-        <div class="sg-pair">
-          <a class="sg-item" target="_blank" rel="noopener"><img alt="" loading="lazy"><span class="sg-kind">グリーン</span><span class="sg-name"></span><span class="sg-price"></span></a>
-          <span class="sg-plus" aria-hidden="true">+</span>
-          <a class="sg-item" target="_blank" rel="noopener"><img alt="" loading="lazy"><span class="sg-kind">鉢カバー</span><span class="sg-name"></span><span class="sg-price"></span></a>
-        </div>
-        <ul class="sg-why"></ul>
-        <div class="sg-total"><span>セット合計</span><b></b></div>
-        <button type="button" class="sg-btn">セットでカートに追加する</button>`;
+      el.innerHTML = `<h4 class="sg-set-title"></h4>` +
+        (c.pot ? `<div class="sg-pair">${itemHtml('グリーン')}<span class="sg-plus" aria-hidden="true">+</span>${itemHtml('鉢カバー')}</div>`
+          : `<div class="sg-single">${itemHtml('グリーン(鉢付き)')}</div>`) +
+        `<ul class="sg-why"></ul><div class="sg-total"><span>${c.pot ? 'セット合計' : '価格'}</span><b></b></div>
+        <button type="button" class="sg-btn">${c.pot ? 'セットでカートに追加する' : 'カートに追加する'}</button>`;
       el.querySelector('.sg-set-title').textContent = setTitle(c);
       const items = el.querySelectorAll('.sg-item');
-      [[items[0], c.green], [items[1], c.pot]].forEach(([a, it]) => {
-        a.href = it.url; a.querySelector('img').src = it.image;
-        a.querySelector('.sg-name').textContent = it.title; a.querySelector('.sg-price').textContent = yen(it.price);
-      });
+      fillItem(items[0], c.green); if (c.pot) fillItem(items[1], c.pot);
       const ul = el.querySelector('.sg-why');
       (c.why.length ? c.why : ['色の主張が少なく、合わせやすい組み合わせです']).forEach((w) => { const li = document.createElement('li'); li.textContent = w; ul.appendChild(li); });
-      el.querySelector('.sg-total b').textContent = yen(c.green.price + c.pot.price);
-      el.querySelector('.sg-btn').onclick = () => toast('試作なのでカートには追加していません。\nストアに組み込むと、この2点をまとめてカートに追加します。');
-      $('sets').appendChild(el);
+      el.querySelector('.sg-total b').textContent = yen(c.total);
+      el.querySelector('.sg-btn').onclick = () => toast('試作なのでカートには追加していません。\nストアに組み込むと、' + (c.pot ? 'この2点をまとめて' : 'この商品を') + 'カートに追加します。');
+      box.appendChild(el);
     }
-    $('more').hidden = !ranked.length;
-    $('result').hidden = false;
+    $('more-' + cls).hidden = !st.ranked.length;
+    $('none-' + cls).hidden = !!st.ranked.length;
   }
   function labToHex(lab) {
     // Lab → sRGB(表示用)
@@ -278,11 +307,11 @@
     drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('is-over'); });
     drop.addEventListener('dragleave', () => drop.classList.remove('is-over'));
     drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('is-over'); const f = e.dataTransfer.files[0]; if (f && /^image\//.test(f.type)) loadPhoto(URL.createObjectURL(f)); });
-    $('more').onclick = () => { renderSets(); $('sets').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    for (const c of CLASSES) $('more-' + c.key).onclick = () => { renderSets(c.key); $('sec-' + c.key).scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     bindPins();
     const m = location.hash.match(/^#sample-(\d)$/); // 見本を開いた状態で見せる(案内用)
     if (m && SAMPLES[m[1] - 1]) loadPhoto(drawSample(SAMPLES[m[1] - 1]));
-    window.__suggest = { readRoom: () => readRoom(), combos, pickSets, get ranked() { return ranked; } }; // 確認用
+    window.__suggest = { readRoom: () => readRoom(), combos, pickSets, state }; // 確認用
   }
   init();
 })();
