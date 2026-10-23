@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>判定ルール | 草マッチングできて草</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap">
+<style>
+  :root {
+    --sage: #b7bcb2; --sage-deep: #9aa094; --ink: #121212; --text: rgba(18,18,18,.75); --muted: rgba(18,18,18,.55);
+    --line: rgba(18,18,18,.12); --soft: #f5f5f3; --bg: #fff;
+    --font-body: "Noto Sans JP", "Noto Sans Japanese", "Hiragino Sans", "Yu Gothic", sans-serif;
+    --font-head: "Josefin Sans", "Yu Gothic", YuGothic, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 13px; line-height: 1.8; letter-spacing: .6px; }
+  a { color: var(--ink); text-underline-offset: 3px; }
+  .topbar { background: var(--sage); color: #fff; text-align: center; padding: 14px 16px; }
+  .topbar .en { font-family: var(--font-head); font-size: 20px; letter-spacing: .18em; line-height: 1.2; display: block; }
+  .topbar .ja { font-size: 11px; letter-spacing: .12em; opacity: .9; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 36px 50px 64px; display: flex; flex-direction: column; gap: 34px; }
+  @media (max-width: 760px) { .wrap { padding: 20px 16px 48px; gap: 28px; } }
+  h1 { font-family: var(--font-head); font-weight: 400; font-size: 25px; line-height: 1.3; color: var(--ink); margin: 0 0 8px; }
+  .lead { margin: 0; }
+  .back { font-size: 12px; }
+  h2 { display: flex; align-items: baseline; gap: 10px; margin: 0 0 12px; color: var(--ink); font-size: inherit; font-weight: 400; }
+  h2 .no { font-family: var(--font-head); font-weight: 700; font-size: 18px; letter-spacing: .06em; }
+  h2 .ja { font-size: 15px; font-weight: 700; }
+  p { margin: 0 0 8px; }
+  .note { color: var(--muted); font-size: 12px; }
+  .tbl { width: 100%; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 12.5px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); color: var(--ink); font-weight: 700; white-space: nowrap; }
+  td.pt { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--ink); text-align: right; width: 70px; }
+  td.pt.minus { color: #a8322a; }
+  ol, ul { margin: 0; padding-left: 1.4em; }
+  li { margin: 2px 0; }
+  .cls-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .cls-tabs button { font: inherit; letter-spacing: inherit; border: 1px solid var(--line); background: #fff; padding: 4px 14px; cursor: pointer; color: var(--ink); }
+  .cls-tabs button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .sw { display: inline-block; width: 12px; height: 12px; border: 1px solid var(--line); vertical-align: -1px; margin-right: 4px; }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="en">COORDINATE</span>
+  <span class="ja">草マッチングできて草 判定ルール</span>
+</header>
+<main class="wrap">
+  <div>
+    <h1>草マッチングできて草 判定ルール</h1>
+    <p class="lead">お部屋の写真から、どのように色を読み取り、どの組み合わせを提案しているかの一覧です。デザイン理論の決まった基準ではなく、一般的なインテリアの合わせ方を点数にしたものです。重みや分類は調整できます。</p>
+    <p class="back"><a href="./">← 草マッチングできて草に戻る</a></p>
+  </div>
+
+  <section>
+    <h2><span class="no">01</span><span class="ja">写真から読み取るもの</span></h2>
+    <ul>
+      <li>壁・床の色：「壁」「床」の印のまわりの色の中央値(模様や影に引っ張られにくくするため)</li>
+      <li>家具などの色：壁・床に近い色を除いた残りを4グループに分け、写真の5%以上を占める色を多い順に最大3色</li>
+      <li>色の比較は、人の見え方に近い尺度(明るさ0〜100+色味)で行う</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="no">02</span><span class="ja">部屋のタイプ分け</span></h2>
+    <div class="tbl"><table>
+      <tr><th>タイプ</th><th>条件</th></tr>
+      <tr><td>濃い色の部屋</td><td>壁の明るさ45未満、または木の床で明るさ42未満</td></tr>
+      <tr><td>ナチュラル</td><td>床が木目(茶〜黄みで色味がある)</td></tr>
+      <tr><td>モノトーン</td><td>壁も床も色味がほとんどない(白・グレー・黒)</td></tr>
+      <tr><td>やわらかい色</td><td>上のどれでもない</td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2><span class="no">03</span><span class="ja">鉢カバーの点数</span></h2>
+    <div class="tbl"><table>
+      <tr><th>条件</th><th>点</th></tr>
+      <tr><td>床との明るさの差が大きい(30以上)</td><td class="pt">+2</td></tr>
+      <tr><td>床とほぼ同じ色(溶け込む)</td><td class="pt minus">−2</td></tr>
+      <tr><td>壁とほぼ同じ色</td><td class="pt minus">−1</td></tr>
+      <tr><td>写真の中の家具の色に近い</td><td class="pt">+2</td></tr>
+      <tr><td>ナチュラルの部屋 × ナチュラル/白/天然素材の鉢</td><td class="pt">+1.5</td></tr>
+      <tr><td>モノトーンの部屋 × グレー/黒/白の鉢</td><td class="pt">+1.5</td></tr>
+      <tr><td>濃い色の部屋 × 黒/茶/グレー/天然素材の鉢</td><td class="pt">+1.5</td></tr>
+      <tr><td>やわらかい色の部屋 × 白/グレー/ナチュラルの鉢</td><td class="pt">+1</td></tr>
+      <tr><td>木の床 × 天然素材の鉢</td><td class="pt">+0.5</td></tr>
+    </table></div>
+    <p class="note">鉢の色は商品名末尾の記号から判定(WH=白、NA=ナチュラル、GL=グレー、BL=黒、BR=茶、NV=紺、IV=アイボリー)。記号がない場合は名前の色(ホワイト・ブラウン等)やラタン・バンブー(天然素材)から判定。</p>
+  </section>
+
+  <section>
+    <h2><span class="no">04</span><span class="ja">グリーンの点数</span></h2>
+    <div class="tbl"><table>
+      <tr><th>条件</th><th>点</th></tr>
+      <tr><td>濃い壁 × シルバー/明るい緑(濃い緑は −1)</td><td class="pt">+2</td></tr>
+      <tr><td>白っぽい壁(明るさ78以上) × 濃い緑</td><td class="pt">+1.5</td></tr>
+      <tr><td>ナチュラルの部屋 × 軽やかな枝ぶり</td><td class="pt">+1.5</td></tr>
+      <tr><td>モノトーンの部屋 × シルバー、または大きな葉</td><td class="pt">+1.5</td></tr>
+      <tr><td>濃い色の部屋 × シルバー/明るい緑</td><td class="pt">+1</td></tr>
+      <tr><td>やわらかい色の部屋 × 軽やかな枝ぶり</td><td class="pt">+0.5</td></tr>
+    </table></div>
+    <p class="note">葉の色(シルバー/明るい緑/濃い緑)と形(軽やかな枝ぶり/大きな葉)は品種名から仮に分類しています。分類の一覧は下の「08 商品データ」にあります。</p>
+  </section>
+
+  <section>
+    <h2><span class="no">05</span><span class="ja">組み合わせのボーナス</span></h2>
+    <div class="tbl"><table>
+      <tr><th>条件</th><th>点</th></tr>
+      <tr><td>濃い鉢(黒・茶・紺) × 明るい葉(メリハリ)</td><td class="pt">+0.5</td></tr>
+      <tr><td>白い鉢 × 濃い緑</td><td class="pt">+0.5</td></tr>
+      <tr><td>シルバーの葉 × グレー/白/ナチュラルの鉢(同じトーン)</td><td class="pt">+0.5</td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2><span class="no">06</span><span class="ja">サイズの分け方と組み合わせ方</span></h2>
+    <ul>
+      <li>商品ページのタグ「大型/中型/小型」だけで判別(商品名のS/M/Lは商品ごとに表記が違うため使わない)</li>
+      <li>大型商品 → 大型鉢、中型商品 → 中型鉢、小型商品 → 小型鉢 の同じ区分どうしで組み合わせる</li>
+      <li>鉢付きで売っている商品(名前に「ポット」「POT」「スタンド」「バスケット」「ベース」)は単体で提案。付いている鉢の色が名前から分かれば(ホワイト・グレー・セメント・ナチュラルウッド・ジュート等)、鉢カバーと同じ基準で点数をつける</li>
+      <li>花・枝物、セット商品、売り切れの商品は対象外</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="no">07</span><span class="ja">提案の選び方(大型・中型・小型それぞれ3つ)</span></h2>
+    <ol>
+      <li>グリーン+鉢+ボーナスの合計点が高い順に並べる(同点なら、その区分の中で価格が中くらいのものを優先)</li>
+      <li>上から順に、グリーン・鉢の色・葉の色の系統がすべて違うものを3つ選ぶ(足りなければ条件をゆるめる)</li>
+      <li>「ほかの○型を見る」では、すでに出したグリーンを除いて同じように選ぶ</li>
+    </ol>
+    <p class="note">表示している「理由」は、点数が付いた条件の説明文を最大3つ並べたものです。</p>
+  </section>
+
+  <section>
+    <h2><span class="no">08</span><span class="ja">商品データ(提案に使っている分類)</span></h2>
+    <p class="note" id="dataNote"></p>
+    <div class="cls-tabs" id="tabs" role="group" aria-label="区分"></div>
+    <div class="tbl"><table id="greenTbl"></table></div>
+    <h2 style="margin-top:22px"><span class="ja">鉢カバー</span></h2>
+    <div class="tbl"><table id="potTbl"></table></div>
+  </section>
+</main>
+<script src="catalog.js?v=3"></script>
+<script>
+  // 提案ページと同じ商品データ(catalog.js)から、分類の一覧を作る
+  (function () {
+    const C = window.SUGGEST_CATALOG;
+    const CLS = { large: '大型', medium: '中型', small: '小型' };
+    const TONE = { silver: 'シルバー', bright: '明るい緑', deep: '濃い緑' };
+    const SHAPE = { airy: '軽やかな枝ぶり', bold: '大きな葉' };
+    const COLOR = { WH: '#ece9e2', NA: '#cbb89a', GL: '#77766f', BL: '#302f2c', BR: '#6e4d38', NV: '#2d3b55', IV: '#e8e0cc', RATTAN: '#b08a5a' };
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const yen = (n) => '¥' + Math.round(n).toLocaleString('ja-JP');
+    const sw = (code, name) => (code ? `<span class="sw" style="background:${COLOR[code]}"></span>${esc(name)}` : '<span class="muted">—</span>');
+    const count = (cls) => C.greens.filter((g) => g.cls === cls).length;
+    document.getElementById('dataNote').textContent = `在庫のある商品だけを載せています。グリーン ${C.greens.length}件(大型${count('large')}・中型${count('medium')}・小型${count('small')})、鉢カバー ${C.pots.length}件。`;
+    let cur = 'large';
+    function render() {
+      document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cls === cur)));
+      const gs = C.greens.filter((g) => g.cls === cur);
+      document.getElementById('greenTbl').innerHTML = '<tr><th>グリーン</th><th>葉の色</th><th>形</th><th>鉢</th><th>価格</th></tr>' +
+        gs.map((g) => `<tr><td><a href="${esc(g.url)}" target="_blank" rel="noopener">${esc(g.title)}</a></td><td>${TONE[g.tone]}</td><td>${SHAPE[g.shape]}</td><td>${g.ownPot ? '鉢付き' + (g.ownPotColor ? '(' + sw(g.ownPotColor, g.ownPotName) + ')' : '(色不明)') : '鉢カバーと組み合わせ'}</td><td>${yen(g.price)}</td></tr>`).join('');
+    }
+    for (const [k, v] of Object.entries(CLS)) {
+      const b = document.createElement('button'); b.type = 'button'; b.dataset.cls = k; b.textContent = `${v}(${count(k)})`;
+      b.onclick = () => { cur = k; render(); };
+      document.getElementById('tabs').appendChild(b);
+    }
+    document.getElementById('potTbl').innerHTML = '<tr><th>鉢カバー</th><th>区分</th><th>色</th><th>素材</th><th>価格</th></tr>' +
+      ['large', 'medium', 'small'].flatMap((c) => C.pots.filter((p) => p.cls === c)).map((p) => `<tr><td><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a></td><td>${CLS[p.cls]}</td><td>${sw(p.color, p.colorName)}</td><td>${esc(p.material)}</td><td>${yen(p.price)}</td></tr>`).join('');
+    render();
+  })();
+</script>
+</body>
+</html>
