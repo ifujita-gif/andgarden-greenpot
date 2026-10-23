@@ -114,9 +114,9 @@
     return { s, why };
   }
   // ---- 大きさの組み合わせ ----
-  // 大型: 大型鉢とセット(グリーンのS/M/Lと鉢のS/M/Lで合わせる)
+  // 大型: 大型鉢とセット(グリーンのS/M/Lと鉢のS/M/Lが同じものだけ)
   // 中型・小型: 鉢付きの商品は単体で。鉢なしなら、中型(60cm以上)は大型鉢のS・M、それ以外は小型鉢と組み合わせる
-  const SIZE_OK = { S: ['S', 'M'], M: ['M', 'L'], L: ['L', 'M'] };
+  const SIZE_OK = { S: ['S'], M: ['M'], L: ['L'] }; // サイズ違いは合わないことが多いので、同じサイズだけ
   function potsFor(g) {
     if (g.cls === 'large') return C.pots.filter((p) => p.cls === 'large' && SIZE_OK[g.size].includes(p.size));
     if (g.cls === 'medium' && (g.heightCm || 0) >= 60) return C.pots.filter((p) => p.cls === 'large' && ['S', 'M'].includes(p.size));
