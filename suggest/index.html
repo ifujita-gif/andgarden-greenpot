@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>お部屋に合わせて選ぶ | 草合体できて草</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap">
+<style>
+  /* & GARDEN の見た目: セージの帯、白地、角丸なし、Josefin Sansの英字見出し+日本語 */
+  :root {
+    --sage: #b7bcb2; --sage-deep: #9aa094; --ink: #121212; --text: rgba(18,18,18,.75); --muted: rgba(18,18,18,.55);
+    --line: rgba(18,18,18,.12); --soft: #f5f5f3; --bg: #fff;
+    --font-body: "Noto Sans JP", "Noto Sans Japanese", "Hiragino Sans", "Yu Gothic", sans-serif;
+    --font-head: "Josefin Sans", "Yu Gothic", YuGothic, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 13px; line-height: 1.8; letter-spacing: .6px; }
+  button { font: inherit; letter-spacing: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  .topbar { background: var(--sage); color: #fff; text-align: center; padding: 14px 16px; }
+  .topbar .en { font-family: var(--font-head); font-size: 20px; letter-spacing: .18em; line-height: 1.2; display: block; }
+  .topbar .ja { font-size: 11px; letter-spacing: .12em; opacity: .9; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 36px 50px 64px; display: flex; flex-direction: column; gap: 36px; }
+  @media (max-width: 990px) { .wrap { padding: 20px 16px 48px; gap: 28px; } }
+
+  h1 { font-family: var(--font-head); font-weight: 400; font-size: 25px; line-height: 1.3; color: var(--ink); margin: 0 0 8px; }
+  .lead { margin: 0; max-width: 46em; }
+  .sec-head { display: flex; align-items: baseline; gap: 10px; margin: 0 0 14px; color: var(--ink); font-size: inherit; }
+  .sec-head .en { font-family: var(--font-head); font-weight: 700; font-size: 18px; letter-spacing: .08em; line-height: 1; }
+  .sec-head .ja { font-size: 12px; color: var(--text); }
+
+  .upload { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 990px) { .upload { grid-template-columns: minmax(0, 1fr); } }
+  .drop { border: 1px dashed var(--sage-deep); background: var(--soft); min-height: 240px; display: grid; place-items: center; text-align: center; padding: 20px; }
+  .drop.is-over { background: #eceee9; }
+  .drop.has-photo { min-height: 0; padding: 14px; }
+  .drop p { margin: 0 0 12px; }
+  .drop.has-photo #dropText { display: none; }
+  .drop.has-photo #pick { margin-top: 12px; }
+  .btn { display: inline-block; min-height: 44px; border: 0; cursor: pointer; font-size: 14px; letter-spacing: 1px; padding: 0 26px; background: var(--sage); color: #fff; }
+  .btn:hover { background: var(--sage-deep); }
+  .btn-outline { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .btn-outline:hover { background: #fff; box-shadow: inset 0 0 0 2px var(--ink); }
+  .note { color: var(--muted); font-size: 11.5px; margin: 10px 0 0; }
+  .samples { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .sg-sample { border: 1px solid var(--line); background: #fff; padding: 0 0 4px; cursor: pointer; width: 120px; text-align: left; }
+  .sg-sample:hover { border-color: var(--sage-deep); }
+  .sg-sample img { width: 100%; display: block; aspect-ratio: 4 / 3; object-fit: cover; }
+  .sg-sample span { font-size: 11px; padding: 0 6px; color: var(--ink); }
+
+  .photo-wrap { position: relative; user-select: none; }
+  .photo-wrap img { width: 100%; display: block; }
+  .pin { position: absolute; transform: translate(-50%, -100%); cursor: grab; touch-action: none; background: var(--ink); color: #fff; font-size: 11px; padding: 2px 8px; white-space: nowrap; }
+  .pin::after { content: ""; position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); border: 6px solid transparent; border-bottom: 0; border-top-color: var(--ink); }
+  .pin.floor { background: #6b5440; } .pin.floor::after { border-top-color: #6b5440; }
+
+  .reading { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--ink); }
+  .sg-sw { display: inline-flex; align-items: center; gap: 6px; }
+  .sg-sw i { width: 18px; height: 18px; border: 1px solid var(--line); display: inline-block; }
+
+  .sets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 990px) { .sets { grid-template-columns: minmax(0, 1fr); } }
+  .sg-set { border: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .sg-set-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; letter-spacing: .04em; color: var(--ink); margin: 0; }
+  .sg-pair { display: grid; grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr); align-items: start; gap: 6px; }
+  .sg-plus { text-align: center; padding-top: 40%; color: var(--muted); }
+  .sg-item { display: flex; flex-direction: column; gap: 2px; text-decoration: none; color: var(--ink); }
+  .sg-item img { width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--soft); display: block; }
+  .sg-item:hover .sg-name { text-decoration: underline; }
+  .sg-kind { font-size: 10.5px; color: var(--muted); margin-top: 4px; }
+  .sg-name { font-size: 12px; line-height: 1.45; }
+  .sg-price { font-size: 12px; letter-spacing: 1px; }
+  .sg-why { margin: 0; padding: 0 0 0 1.1em; font-size: 12px; line-height: 1.7; flex: 1; }
+  .sg-total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 10px; color: var(--ink); }
+  .sg-total b { font-size: 18px; font-weight: 400; letter-spacing: 1.3px; }
+  .sg-btn { min-height: 44px; border: 0; background: var(--sage); color: #fff; cursor: pointer; letter-spacing: 1px; }
+  .sg-btn:hover { background: var(--sage-deep); }
+  .more { margin-top: 14px; text-align: center; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; font-size: 12.5px; max-width: calc(100vw - 32px); white-space: pre-wrap; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 50; }
+  .toast.is-show { opacity: 1; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="en">COORDINATE</span>
+  <span class="ja">お部屋に合わせて選ぶ(試作)</span>
+</header>
+<main class="wrap">
+  <div>
+    <h1>お部屋の写真から選ぶ</h1>
+    <p class="lead">グリーンを置きたい場所の写真を選ぶと、壁や床、家具の色から、似合うグリーンと鉢カバーの組み合わせを提案します。</p>
+  </div>
+
+  <section class="upload">
+    <div>
+      <h2 class="sec-head"><span class="en">PHOTO</span><span class="ja">お部屋の写真</span></h2>
+      <div class="drop" id="drop">
+        <div>
+          <div class="photo-wrap" id="photoWrap" hidden>
+            <img id="photo" alt="選んだお部屋の写真">
+            <span class="pin" id="pin-wall">壁</span>
+            <span class="pin floor" id="pin-floor">床</span>
+          </div>
+          <p id="dropText">写真をここにドラッグするか、ボタンから選んでください</p>
+          <button type="button" class="btn" id="pick">写真を選ぶ</button>
+          <input type="file" id="file" accept="image/*" hidden>
+        </div>
+      </div>
+      <p class="note">写真はこの端末の中だけで読み取り、どこにも送りません。「壁」「床」の印は、ずれていたらドラッグで動かしてください。</p>
+      <div class="samples" id="samples" aria-label="見本の部屋"></div>
+    </div>
+    <div>
+      <h2 class="sec-head"><span class="en">COLOR</span><span class="ja">読み取った色</span></h2>
+      <div class="reading" id="reading"><span class="note" style="margin:0">写真を選ぶと、ここに壁・床・家具の色が出ます</span></div>
+      <p class="note" id="styleNote"></p>
+    </div>
+  </section>
+
+  <section id="result" hidden>
+    <h2 class="sec-head"><span class="en">SUGGEST</span><span class="ja">おすすめの組み合わせ</span></h2>
+    <div class="sets" id="sets"></div>
+    <div class="more"><button type="button" class="btn btn-outline" id="more">ほかの組み合わせを見る</button></div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<script src="catalog.js?v=1"></script>
+<script src="suggest.js?v=4"></script>
+</body>
+</html>
