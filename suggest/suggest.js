@@ -114,13 +114,10 @@
     return { s, why };
   }
   // ---- 大きさの組み合わせ ----
-  // 大型: 大型鉢とセット(グリーンのS/M/Lと鉢のS/M/Lが同じものだけ)
-  // 中型・小型: 鉢付きの商品は単体で。鉢なしなら、中型(60cm以上)は大型鉢のS・M、それ以外は小型鉢と組み合わせる
-  const SIZE_OK = { S: ['S'], M: ['M'], L: ['L'] }; // サイズ違いは合わないことが多いので、同じサイズだけ
+  // サイズは商品タグの「大型/中型/小型」だけで判別する(商品名のS/M/Lは商品ごとに表記が違うので使わない)
+  // 大型商品→大型鉢、中型商品→中型鉢、小型商品→小型鉢。鉢付きで売っている商品は単体で提案する
   function potsFor(g) {
-    if (g.cls === 'large') return C.pots.filter((p) => p.cls === 'large' && SIZE_OK[g.size].includes(p.size));
-    if (g.cls === 'medium' && (g.heightCm || 0) >= 60) return C.pots.filter((p) => p.cls === 'large' && ['S', 'M'].includes(p.size));
-    return C.pots.filter((p) => p.cls === 'small');
+    return C.pots.filter((p) => p.cls === g.cls);
   }
   function pairBonus(g, color) {
     let s = 0; const why = [];

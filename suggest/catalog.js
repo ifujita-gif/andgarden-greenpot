@@ -2258,7 +2258,7 @@ window.SUGGEST_CATALOG = {
    "hex": "#77766f",
    "material": "クレイ",
    "size": "S",
-   "cls": "small"
+   "cls": "medium"
   },
   {
    "id": "hexa-fiber-clay-pot-m-wh",
